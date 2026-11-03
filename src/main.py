@@ -52,7 +52,7 @@ def validate_settings(settings):
 def fetch_repo_data(url):
     print(f"Скачивание репозитория: {url} ...")
     try:
-        # Скачиваем архив и распаковываем "на лету" без сохранения файла
+        '''Скачиваем архив и распаковываем без сохранения файла'''
         with urllib.request.urlopen(url) as response:
             with gzip.GzipFile(fileobj=response) as gz:
                 return gz.read().decode('utf-8')
@@ -77,7 +77,7 @@ def extract_dependencies(content, target_pkg):
 def clean_deps(deps_str):
     cleaned = []
     for dep in deps_str.split(','):
-        # Отсекаем альтернативы (|) и версии (в скобках)
+        '''Отсекаем альтернативы и версии'''
         clean_name = dep.split('|')[0].strip().split()[0]
         if clean_name not in cleaned:
             cleaned.append(clean_name)
@@ -89,12 +89,12 @@ def main():
     parser.add_argument('--config', default='config.ini')
     args = parser.parse_args()
 
-    print("=== Загрузка конфигурации ===")
+    print("Загрузка конфигурации")
     cfg = load_config(args.config)
     for k, v in cfg.items():
         print(f"{k}: {v}")
 
-    print(f"\n=== Прямые зависимости для '{cfg['package_name']}' ===")
+    print(f"\nПрямые зависимости для '{cfg['package_name']}'")
     repo_data = fetch_repo_data(cfg['repo_url'])
     deps = extract_dependencies(repo_data, cfg['package_name'])
 
