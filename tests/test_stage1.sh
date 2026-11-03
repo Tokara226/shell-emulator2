@@ -1,4 +1,5 @@
 #!/bin/bash
+cd "$(dirname "$0")/.."
 
 echo "=== Тест 1: Успешная загрузка ==="
 cat <<EOF > tests/test_ok.ini

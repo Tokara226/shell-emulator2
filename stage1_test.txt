@@ -1,3 +1,0 @@
-#!/bin/bash
-cd "$(dirname "$0")/.."
-echo -e "ls\nexit" | uv run src/main.py --config config.ini
