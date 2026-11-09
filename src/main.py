@@ -14,7 +14,7 @@ def check_file(file_path):
 
 
 def load_config(config_path):
-    ''' Читает INI-файл, проверяет секцию и передает на валидацию. '''
+    ''' Читает INI-файл, проверяет наличие секции и передает данные на валидацию. '''
     check_file(config_path)
     config = configparser.ConfigParser()
     try:
@@ -65,7 +65,7 @@ def fetch_data(url, is_test):
 
 
 def parse_repo(content):
-    ''' Собирает репозиторий в словарь: ключ - пакет, значение - зависимости. '''
+    ''' Собирает репозиторий в словарь: ключ - имя пакета, значение - зависимости. '''
     graph = {}
     current_pkg = None
     for line in content.splitlines():
@@ -99,12 +99,19 @@ def dfs(graph, pkg, visited, edges, load_order):
         edges.append((pkg, dep))
         dfs(graph, dep, visited, edges, load_order)
 
-    # Добавляем пакет в порядок загрузки после обработки всех его зависимостей
     load_order.append(pkg)
 
 
+def generate_d2_code(edges):
+    ''' Формирует код на языке диаграмм D2. '''
+    lines = ["direction: right"]
+    for parent, child in edges:
+        lines.append(f'"{parent}" -> "{child}"')
+    return "\n".join(lines)
+
+
 def main():
-    ''' Главная функция: связывает загрузку, парсинг и построение графа. '''
+    ''' Главная функция: связывает все этапы вместе. '''
     parser = argparse.ArgumentParser()
     parser.add_argument('--config', default='config.ini')
     args = parser.parse_args()
@@ -123,16 +130,15 @@ def main():
     load_order = []
     dfs(full_graph, cfg['package_name'], visited, edges, load_order)
 
-    print(f"\nГраф зависимостей для '{cfg['package_name']}")
-    if not edges:
-        print("Зависимостей не найдено.")
-    else:
-        for parent, child in edges:
-            print(f"{parent} -> {child}")
-
     print(f"\nПорядок загрузки зависимостей")
     for p in load_order:
         print(f"- {p}")
+
+    print(f"\nКод графа на языке диаграмм D2")
+    if not edges:
+        print("Зависимостей не найдено.")
+    else:
+        print(generate_d2_code(edges))
 
 
 if __name__ == "__main__":
